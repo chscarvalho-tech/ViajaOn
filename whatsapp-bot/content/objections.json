@@ -1,0 +1,59 @@
+{
+  "_readme": "Base de conhecimento do bot de suporte do WhatsApp. Toda resposta é ancorada em 'Knowledge/brand_identity.md' e 'Knowledge/product_campaign.md' (Equipe ViajaOn) — nenhuma resposta aqui inventa número, prazo ou processo que não esteja documentado. 'keywords' ajuda o matching simples; se nada bater, o bot escalona para humano em vez de responder (ver src/whatsapp/supportBot.js). Perguntas sobre PREÇO/COBRANÇA e sobre acesso a contas/senhas foram deixadas DE FORA de propósito — ver nota no fim do arquivo.",
+
+  "faq": [
+    {
+      "id": "ja-uso-sozinho",
+      "keywords": ["já uso meus pontos", "cuido disso sozinho", "não preciso de ajuda", "sei usar minhas milhas"],
+      "pergunta": "Eu mesmo já uso meus pontos e milhas, não preciso de ajuda com isso.",
+      "resposta": "Faz sentido, e a maioria dos clientes que atendemos também achava isso antes de descobrir quanto ponto tinha vencendo sem virar viagem. O trabalho da ViajaON começa onde o conhecimento sobre o próprio programa termina: transferência bonificada entre programas, parceria entre banco e companhia aérea, janela certa pra resgatar. Os pontos continuam sendo seus, a gente só assume a parte operacional."
+    },
+    {
+      "id": "nao-tenho-milhas-suficientes",
+      "keywords": ["não tenho milhas suficientes", "não tenho pontos suficientes", "poucos pontos", "poucas milhas", "saldo baixo", "não tenho pontos pra isso", "milhas insuficientes"],
+      "pergunta": "Acho que não tenho milhas ou pontos suficientes para uma viagem em classe executiva.",
+      "resposta": "Isso é resolvido na etapa de Otimização do Método ROTA: quando o saldo não fecha sozinho, a gente combina transferência bonificada entre programas ou viabiliza a emissão via parceiros. Boa parte dos clientes chega achando que não tem milhas suficientes e descobre que tem, ou que dá pra viabilizar de outro jeito."
+    },
+    {
+      "id": "ja-tive-agencia-ruim",
+      "keywords": ["já tive experiência ruim", "agência de pacote", "roteiro genérico", "já fui mal atendido"],
+      "pergunta": "Já tive experiência ruim com agência de viagem, roteiro genérico e sem personalização.",
+      "resposta": "Essa desconfiança é comum em quem já passou por agência de pacote fechado. A diferença é que a ViajaON não vende pacote pronto: mapeia o que você já tem em milhas e pontos e monta o roteiro em cima disso, com voos, hotel e locação de carro validados com você antes de qualquer emissão. Nenhuma reserva sai sem sua aprovação."
+    },
+    {
+      "id": "quanto-tempo-demora",
+      "keywords": ["quanto tempo demora", "quanto tempo leva", "prazo do processo", "demora muito"],
+      "pergunta": "Quanto tempo leva o processo do início até a viagem pronta?",
+      "resposta": "O processo passa por quatro etapas: Reconhecimento do seu perfil de milhas, Otimização da estratégia de resgate, Trajetória com o roteiro completo montado e Acompanhamento durante a viagem. O prazo varia com a complexidade do resgate e a disponibilidade das companhias aéreas — na conversa de 30 minutos dá pra estimar o prazo pro seu caso específico."
+    },
+    {
+      "id": "o-que-e-metodo-rota",
+      "keywords": ["o que é o método rota", "como funciona o rota", "o que é rota"],
+      "pergunta": "O que é o Método ROTA?",
+      "resposta": "É como organizamos o processo com cada cliente, em quatro etapas: Reconhecimento (mapeamento completo do seu perfil de milhas — cartões, programas, saldo, parcerias), Otimização (estratégia de resgate, incluindo transferências bonificadas e emissão via parceiros quando necessário), Trajetória (roteiro completo montado, voos, hotéis, locação de carro) e Acompanhamento (suporte durante a viagem e reavaliação do perfil pra próxima)."
+    },
+    {
+      "id": "prova-resultado",
+      "keywords": ["isso funciona mesmo", "tem prova disso", "caso real", "exemplo de resultado"],
+      "pergunta": "Isso realmente funciona? Tem algum caso ou prova?",
+      "resposta": "Sim. Já tivemos caso de redução de até 70% no valor final de uma passagem executiva, usando pontos que o cliente já tinha e não sabia usar. Também já demos palestra sobre acúmulo de milhas para a carteira de clientes do Sicredi."
+    },
+    {
+      "id": "diferenca-agencia-pacote",
+      "keywords": ["diferença de uma agência normal", "por que não uma agência comum", "qual a diferença de vocês"],
+      "pergunta": "Qual a diferença entre a ViajaON e uma agência de viagem comum?",
+      "resposta": "Agência de pacote fechado compete por preço de pacote genérico. A ViajaON compete por resultado em cima de um ativo que você já tem: milhas, pontos de cartão e parcerias entre programas. Não vendemos roteiro de prateleira, mapeamos o que já é seu antes de montar qualquer viagem."
+    },
+    {
+      "id": "sem-fricao-fornecedor",
+      "keywords": ["preciso negociar com a companhia aérea", "eu que resolvo com o hotel", "falar direto com a locadora"],
+      "pergunta": "Eu que vou ter que negociar com companhia aérea, hotel ou locadora?",
+      "resposta": "Não. Esse é o ponto de Trajetória do Método ROTA: o roteiro completo é montado sem você negociar com nenhum fornecedor diretamente. Toda decisão de padrão é validada com você antes da emissão, mas quem resolve com companhia aérea, hotel e locadora é a ViajaON."
+    }
+  ],
+
+  "fora_de_escopo": {
+    "instrucao": "Se a pergunta não tiver correspondência clara em nenhuma entrada acima, nem contexto suficiente na conversa, o bot NÃO deve inventar resposta. Ele envia a mensagem de escalonamento abaixo e notifica um humano. Isso inclui, DE PROPÓSITO, qualquer pergunta sobre preço/modelo de cobrança e sobre acesso a contas, senhas ou dados bancários — o processo real de cada uma não está documentado nas knowledge files da ViajaON, então o bot não deve responder por conta própria. Preencher essas duas respostas aqui (com o texto que a Luís aprovar) antes de rodar em produção é o item mais importante da lista de pendências do README.",
+    "mensagem_escalonamento": "Essa eu prefiro confirmar com o Luís antes de te responder, pra não te passar informação errada. Já chamo alguém aqui pra te ajudar, só um instante."
+  }
+}

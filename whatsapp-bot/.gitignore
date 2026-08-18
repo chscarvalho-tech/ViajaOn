@@ -1,0 +1,10 @@
+node_modules/
+.env
+data/state/
+data/db.json
+*.log
+
+# Listas reais de contatos importadas pelo cliente (dados pessoais/PII) — nunca comitar.
+# O template genérico em content/apollo-template.csv continua versionado normalmente.
+data/contacts/*.csv
+!data/contacts/.gitkeep
