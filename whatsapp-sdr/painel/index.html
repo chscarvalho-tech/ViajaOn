@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel SDR WhatsApp</title>
+<style>
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --surface-2: #f0f2f5; --border: #e3e6eb;
+  --text: #16191d; --muted: #5f6873; --faint: #8a939d;
+  --accent: #0f7b6c; --accent-soft: #e2f3f0; --accent-text: #ffffff;
+  --bot: #e8f0fe; --bot-text: #17325c; --human: #dcf5e6; --human-text: #0f3d24; --lead: #ffffff;
+  --hot: #c2410c; --hot-soft: #fdebe1; --warm: #a16207; --warm-soft: #fbf3d9; --cold: #3b6ea8; --cold-soft: #e4eefa;
+  --danger: #b42318; --danger-soft: #fdecea; --ok: #157347;
+  --shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+  --radius: 10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1215; --surface: #171b20; --surface-2: #1e242a; --border: #2a3138;
+    --text: #e8ecef; --muted: #a2acb6; --faint: #78838e;
+    --accent: #2bb39e; --accent-soft: #143430; --accent-text: #06221e;
+    --bot: #1b2a40; --bot-text: #d5e3fb; --human: #173325; --human-text: #cdeedb; --lead: #1e242a;
+    --hot: #fb8a5a; --hot-soft: #3a2117; --warm: #e7b94a; --warm-soft: #33290f; --cold: #8fb8ea; --cold-soft: #1a2a3d;
+    --danger: #f2877d; --danger-soft: #3a1a17; --ok: #5fd39a;
+    --shadow: none; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1215; --surface: #171b20; --surface-2: #1e242a; --border: #2a3138;
+  --text: #e8ecef; --muted: #a2acb6; --faint: #78838e;
+  --accent: #2bb39e; --accent-soft: #143430; --accent-text: #06221e;
+  --bot: #1b2a40; --bot-text: #d5e3fb; --human: #173325; --human-text: #cdeedb; --lead: #1e242a;
+  --hot: #fb8a5a; --hot-soft: #3a2117; --warm: #e7b94a; --warm-soft: #33290f; --cold: #8fb8ea; --cold-soft: #1a2a3d;
+  --danger: #f2877d; --danger-soft: #3a1a17; --ok: #5fd39a;
+  --shadow: none; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--accent); }
+.hidden { display: none !important; }
+
+/* layout */
+.app { display: grid; grid-template-columns: 220px minmax(0, 1fr); grid-template-rows: 56px 1fr; height: 100vh; }
+header.top { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { font-weight: 650; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.top .spacer { flex: 1; }
+nav.side { background: var(--surface); border-right: 1px solid var(--border); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+nav.side a { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; font-weight: 500; }
+nav.side a:hover { background: var(--surface-2); color: var(--text); }
+nav.side a.on { background: var(--accent-soft); color: var(--accent); }
+main { overflow: auto; padding: 20px; min-width: 0; }
+h1 { font-size: 20px; margin: 0 0 4px; }
+h2 { font-size: 15px; margin: 0 0 12px; }
+.sub { color: var(--muted); margin: 0 0 16px; }
+
+/* componentes */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); min-width: 0; }
+.grid { display: grid; gap: 16px; }
+.kpis { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.kpi .v { font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.kpi .l { color: var(--muted); font-size: 13px; }
+.kpi .s { color: var(--faint); font-size: 12px; margin-top: 2px; }
+.cols-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+.btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: var(--surface); padding: 7px 12px; border-radius: 8px; cursor: pointer; font-weight: 500; text-decoration: none; color: var(--text); white-space: nowrap; }
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.btn.primary:hover { filter: brightness(1.05); }
+.btn.danger { color: var(--danger); }
+.btn.sm { padding: 4px 9px; font-size: 13px; }
+.btn:disabled { opacity: .55; cursor: default; }
+input[type=text], input[type=password], input[type=search], select, textarea { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; width: 100%; }
+textarea { resize: vertical; }
+input:focus, select:focus, textarea:focus, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 13px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.muted { color: var(--muted); }
+.faint { color: var(--faint); font-size: 12px; }
+.badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.badge.quente { background: var(--hot-soft); color: var(--hot); }
+.badge.morno { background: var(--warm-soft); color: var(--warm); }
+.badge.frio { background: var(--cold-soft); color: var(--cold); }
+.badge.ok { background: var(--accent-soft); color: var(--accent); }
+.badge.erro { background: var(--danger-soft); color: var(--danger); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); display: inline-block; }
+.pill.on i { background: var(--ok); }
+.pill.off i { background: var(--danger); }
+.toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-weight: 500; }
+.toggle input { display: none; }
+.toggle .sw { width: 36px; height: 20px; border-radius: 999px; background: var(--border); position: relative; transition: background .15s; }
+.toggle .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .15s; }
+.toggle input:checked + .sw { background: var(--accent); }
+.toggle input:checked + .sw::after { left: 18px; }
+.empty { color: var(--faint); text-align: center; padding: 24px 8px; }
+.list-item { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); cursor: pointer; }
+.list-item:first-child { border-top: 0; }
+.list-item:hover .t { color: var(--accent); }
+.err { background: var(--danger-soft); color: var(--danger); border-radius: 8px; padding: 8px 12px; white-space: pre-wrap; }
+
+/* barras */
+.bar-row { display: grid; grid-template-columns: 150px 1fr 40px; align-items: center; gap: 10px; padding: 4px 0; }
+.bar-row .track { background: var(--surface-2); border-radius: 6px; height: 12px; overflow: hidden; }
+.bar-row .fill { background: var(--accent); height: 100%; border-radius: 6px; min-width: 2px; }
+.bar-row .n { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.days { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding-top: 8px; }
+.days .d { flex: 1; background: var(--accent); border-radius: 3px 3px 0 0; min-height: 2px; position: relative; opacity: .85; }
+.days .d:hover { opacity: 1; }
+
+/* kanban */
+.board { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; align-items: flex-start; }
+.col { background: var(--surface-2); border-radius: var(--radius); min-width: 260px; width: 260px; flex-shrink: 0; display: flex; flex-direction: column; max-height: calc(100vh - 190px); }
+.col.over { outline: 2px dashed var(--accent); }
+.col-h { padding: 10px 12px; font-weight: 600; display: flex; justify-content: space-between; }
+.col-b { padding: 0 8px 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 40px; }
+.kcard { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px; cursor: pointer; box-shadow: var(--shadow); }
+.kcard:hover { border-color: var(--accent); }
+.kcard .n { font-weight: 600; display: flex; justify-content: space-between; gap: 6px; }
+.kcard .r { color: var(--muted); font-size: 12.5px; margin: 4px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* tabela */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 12.5px; white-space: nowrap; }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: var(--surface-2); }
+
+/* gaveta do lead */
+.drawer-bg { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 20; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(1100px, 100%); background: var(--bg); z-index: 21; display: flex; flex-direction: column; box-shadow: -8px 0 24px rgba(0,0,0,.15); }
+.drawer-h { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.drawer-b { flex: 1; display: grid; grid-template-columns: 1fr 360px; min-height: 0; }
+.chat { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--border); }
+.thread { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.msg { max-width: 78%; padding: 7px 10px; border-radius: 10px; white-space: pre-wrap; word-wrap: break-word; box-shadow: var(--shadow); }
+.msg .m { font-size: 11px; color: var(--faint); margin-top: 2px; }
+.msg.lead { align-self: flex-start; background: var(--lead); border: 1px solid var(--border); }
+.msg.bot { align-self: flex-end; background: var(--bot); color: var(--bot-text); }
+.msg.humano { align-self: flex-end; background: var(--human); color: var(--human-text); }
+.msg.sistema { align-self: center; background: transparent; color: var(--faint); box-shadow: none; font-size: 12.5px; }
+.composer { padding: 12px; border-top: 1px solid var(--border); background: var(--surface); }
+.ficha { overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.ficha label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+.crit { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; }
+.crit b { width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; background: var(--surface-2); color: var(--faint); flex-shrink: 0; }
+.crit b.t { background: var(--accent-soft); color: var(--accent); }
+.crit b.f { background: var(--danger-soft); color: var(--danger); }
+.score { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.timeline div { padding: 4px 0; border-top: 1px dashed var(--border); font-size: 12.5px; }
+
+/* conhecimento / simulador */
+.split { display: grid; grid-template-columns: 260px 1fr; gap: 16px; min-height: calc(100vh - 160px); }
+.files a { display: block; padding: 8px 10px; border-radius: 8px; color: var(--text); text-decoration: none; cursor: pointer; }
+.files a.on { background: var(--accent-soft); color: var(--accent); }
+.editor { width: 100%; min-height: 60vh; }
+.sim { display: grid; grid-template-columns: 1fr 320px; gap: 16px; height: calc(100vh - 150px); }
+.sim .chat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+
+/* login */
+.login { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+.login .card { width: 100%; max-width: 360px; }
+
+.toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 8px; z-index: 50; max-width: calc(100% - 32px); }
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cols-2 { grid-template-columns: minmax(0, 1fr); }
+  header.top { padding: 8px 16px; flex-wrap: wrap; height: auto; }
+  nav.side { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--border); padding: 6px 8px; }
+  nav.side a { white-space: nowrap; }
+  main { padding: 16px; }
+  .drawer-b, .split, .sim { grid-template-columns: 1fr; height: auto; }
+  .drawer-b { overflow-y: auto; display: block; }
+  .chat { border-right: 0; min-height: 60vh; }
+  .thread { max-height: 60vh; }
+  .bar-row { grid-template-columns: 110px 1fr 32px; }
+  .top .hide-sm { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="tela-login" class="login hidden">
+  <form class="card" id="form-login">
+    <h1>Painel SDR</h1>
+    <p class="sub">Entre com a senha definida em PAINEL_SENHA.</p>
+    <input type="password" id="senha" placeholder="Senha" autocomplete="current-password" required>
+    <div id="login-erro" class="err hidden" style="margin-top:10px"></div>
+    <button class="btn primary" style="margin-top:12px;width:100%;justify-content:center">Entrar</button>
+  </form>
+</div>
+
+<div id="tela-app" class="app hidden">
+  <header class="top">
+    <div class="brand"><span class="dot"></span><span id="nome-marca">SDR WhatsApp</span></div>
+    <span class="pill hide-sm" id="pill-wa"><i></i><span>WhatsApp</span></span>
+    <span class="spacer"></span>
+    <label class="toggle" title="Liga/desliga as respostas automáticas para todos os leads">
+      <input type="checkbox" id="bot-ativo"><span class="sw"></span><span>Bot ativo</span>
+    </label>
+    <button class="btn sm" id="sair">Sair</button>
+  </header>
+  <nav class="side" id="nav">
+    <a href="#/" data-v="visao">Visão geral</a>
+    <a href="#/funil" data-v="funil">Funil</a>
+    <a href="#/leads" data-v="leads">Leads</a>
+    <a href="#/conhecimento" data-v="conhecimento">Conhecimento</a>
+    <a href="#/lacunas" data-v="lacunas">Lacunas <span class="badge hidden" id="nav-lacunas"></span></a>
+    <a href="#/simulador" data-v="simulador">Simulador</a>
+    <a href="#/config" data-v="config">Configurações</a>
+  </nav>
+  <main id="main"></main>
+</div>
+
+<div id="gaveta" class="hidden">
+  <div class="drawer-bg" id="gaveta-bg"></div>
+  <div class="drawer" role="dialog" aria-modal="true">
+    <div class="drawer-h">
+      <div style="flex:1;min-width:0">
+        <div id="g-nome" style="font-weight:650;font-size:16px"></div>
+        <div id="g-sub" class="faint"></div>
+      </div>
+      <button class="btn sm" id="g-fechar">Fechar</button>
+    </div>
+    <div class="drawer-b">
+      <section class="chat">
+        <div class="thread" id="g-thread"></div>
+        <div class="composer">
+          <textarea id="g-texto" rows="2" placeholder="Responder como time (o bot pausa para este lead)"></textarea>
+          <div class="row" style="margin-top:8px;justify-content:space-between">
+            <span class="faint">Enter envia · Shift+Enter quebra linha</span>
+            <button class="btn primary sm" id="g-enviar">Enviar pelo WhatsApp</button>
+          </div>
+        </div>
+      </section>
+      <aside class="ficha" id="g-ficha"></aside>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ls = {
+  get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+
+const E = { funil: null, status: null, view: 'visao', leadAberto: null, timer: null, arrastando: false, dias: Number(ls.get('sdr_dias', 30)) || 30 };
+
+async function api(metodo, url, corpo) {
+  const r = await fetch(url, {
+    method: metodo,
+    headers: corpo !== undefined ? { 'Content-Type': 'application/json' } : {},
+    body: corpo !== undefined ? JSON.stringify(corpo) : undefined,
+  });
+  if (r.status === 401 && url !== '/api/login') { mostrarLogin(); throw new Error('Sessão expirada'); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(j.erro || (j.erros || []).join('\n') || r.statusText), { dados: j });
+  return j;
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+function rel(ms) {
+  if (!ms) return '—';
+  const s = Math.round((Date.now() - ms) / 1000);
+  if (s < 60) return 'agora';
+  if (s < 3600) return `há ${Math.round(s / 60)} min`;
+  if (s < 86400) return `há ${Math.round(s / 3600)} h`;
+  if (s < 86400 * 7) return `há ${Math.round(s / 86400)} d`;
+  return new Date(ms).toLocaleDateString('pt-BR');
+}
+const hora = (ms) => new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+const nomeLead = (l) => l.dados?.nome || l.nome_whatsapp || 'Sem nome';
+const fone = (l) => (l.telefone && l.telefone !== '0000000000' ? '+' + l.telefone : 'simulação');
+const etapaNome = (id) => E.funil?.etapas.find((e) => e.id === id)?.nome || id;
+const tempBadge = (l) => `<span class="badge ${esc(l.temperatura)}">${l.score} · ${esc(l.temperatura)}</span>`;
+const modoIcone = (l) => (l.optout ? '⛔' : l.modo === 'humano' ? '🙋' : '🤖');
+
+// ---------------- login ----------------
+function mostrarLogin() {
+  $('#tela-app').classList.add('hidden');
+  $('#gaveta').classList.add('hidden');
+  $('#tela-login').classList.remove('hidden');
+  $('#senha').focus();
+}
+$('#form-login').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  $('#login-erro').classList.add('hidden');
+  try {
+    await api('POST', '/api/login', { senha: $('#senha').value });
+    $('#senha').value = '';
+    iniciar();
+  } catch (e) {
+    $('#login-erro').textContent = e.message;
+    $('#login-erro').classList.remove('hidden');
+  }
+});
+$('#sair').addEventListener('click', async () => { await api('POST', '/api/logout').catch(() => {}); mostrarLogin(); });
+
+// ---------------- topo ----------------
+async function carregarStatus() {
+  try {
+    E.status = await api('GET', '/api/status');
+    $('#nome-marca').textContent = `SDR · ${E.status.empresa}`;
+    $('#bot-ativo').checked = E.status.bot_ativo;
+    const w = E.status.whatsapp;
+    const p = $('#pill-wa');
+    p.className = 'pill hide-sm ' + (w.conectado ? 'on' : 'off');
+    p.querySelector('span').textContent = !w.configurado ? 'WhatsApp não configurado' : w.conectado ? `WhatsApp conectado (${w.sessao})` : `WhatsApp: ${w.status || w.erro || 'desconectado'}`;
+  } catch {}
+}
+$('#bot-ativo').addEventListener('change', async (ev) => {
+  try {
+    await api('POST', '/api/bot/ativo', { ativo: ev.target.checked });
+    toast(ev.target.checked ? 'Bot ligado' : 'Bot desligado: nenhum lead recebe resposta automática');
+  } catch (e) { toast(e.message); ev.target.checked = !ev.target.checked; }
+});
+
+// ---------------- roteamento ----------------
+function rotear() {
+  const h = location.hash.replace(/^#\/?/, '');
+  const [v, id] = h.split('/');
+  if (v === 'lead' && id) { abrirLead(Number(id)); if (!$('#main').innerHTML) render('visao'); return; }
+  fecharGaveta(false);
+  render({ '': 'visao', funil: 'funil', leads: 'leads', conhecimento: 'conhecimento', lacunas: 'lacunas', simulador: 'simulador', config: 'config' }[v] || 'visao');
+}
+window.addEventListener('hashchange', rotear);
+
+function render(view) {
+  E.view = view;
+  document.querySelectorAll('#nav a').forEach((a) => a.classList.toggle('on', a.dataset.v === view));
+  const fn = { visao: vVisao, funil: vFunil, leads: vLeads, conhecimento: vConhecimento, lacunas: vLacunas, simulador: vSimulador, config: vConfig }[view];
+  fn().catch((e) => { $('#main').innerHTML = `<div class="err">${esc(e.message)}</div>`; });
+}
+
+// ---------------- visão geral ----------------
+async function vVisao(atualizacao = false) {
+  const r = await api('GET', `/api/resumo?dias=${E.dias}`);
+  const nav = $('#nav-lacunas');
+  nav.textContent = r.lacunas_abertas; nav.classList.toggle('hidden', !r.lacunas_abertas);
+  if (atualizacao && E.view !== 'visao') return;
+  const max = Math.max(1, ...r.por_etapa.map((x) => x.n));
+  const etapas = E.funil.etapas.map((e) => {
+    const n = r.por_etapa.find((x) => x.etapa === e.id)?.n ?? 0;
+    return `<div class="bar-row"><span>${esc(e.nome)}</span><div class="track"><div class="fill" style="width:${(n / max) * 100}%"></div></div><span class="n">${n}</span></div>`;
+  }).join('');
+  const maxDia = Math.max(1, ...r.por_dia.map((d) => d.n));
+  const dias = r.por_dia.length
+    ? `<div class="days">${r.por_dia.map((d) => `<div class="d" style="height:${(d.n / maxDia) * 100}%" title="${esc(d.dia.split('-').reverse().join('/'))}: ${d.n} lead(s)"></div>`).join('')}</div>
+       <div class="row faint" style="justify-content:space-between"><span>${esc(r.por_dia[0].dia.split('-').reverse().join('/'))}</span><span>${esc(r.por_dia.at(-1).dia.split('-').reverse().join('/'))}</span></div>`
+    : '<div class="empty">Nenhum lead no período.</div>';
+  const temp = ['quente', 'morno', 'frio'].map((t) => `<span class="badge ${t}">${t}: ${r.por_temperatura.find((x) => x.temperatura === t)?.n ?? 0}</span>`).join(' ');
+  const fila = r.aguardando_humano.length
+    ? r.aguardando_humano.map((l) => `<div class="list-item" data-lead="${l.id}"><div><div class="t" style="font-weight:600">${esc(nomeLead(l))} <span class="faint">${esc(fone(l))}</span></div><div class="faint">${esc((l.resumo || '').slice(0, 140))}</div></div><div style="text-align:right">${tempBadge(l)}<div class="faint">${rel(l.ultima_msg_lead_em)}</div></div></div>`).join('')
+    : '<div class="empty">Ninguém esperando o time. 🎉</div>';
+  const s1a = r.primeira_resposta_media_ms ? `${Math.round(r.primeira_resposta_media_ms / 1000)} s` : '—';
+  $('#main').innerHTML = `
+    <div class="row" style="justify-content:space-between;margin-bottom:16px">
+      <div><h1>Visão geral</h1><p class="sub" style="margin:0">Como o bot está trabalhando o funil.</p></div>
+      <select id="dias" style="width:auto">${[7, 30, 90, 365].map((d) => `<option value="${d}" ${d === E.dias ? 'selected' : ''}>Últimos ${d} dias</option>`).join('')}</select>
+    </div>
+    <div class="grid kpis">
+      <div class="card kpi"><div class="l">Leads no período</div><div class="v">${r.leads_periodo}</div><div class="s">hoje: ${r.leads_hoje}</div></div>
+      <div class="card kpi"><div class="l">Taxa de qualificação</div><div class="v">${Math.round(r.taxa_qualificacao * 100)}%</div><div class="s">${r.qualificados_periodo} qualificados</div></div>
+      <div class="card kpi"><div class="l">Quentes em aberto</div><div class="v">${r.quentes_ativos}</div><div class="s">score ≥ ${E.funil.faixas.quente}</div></div>
+      <div class="card kpi"><div class="l">Encaminhados ao time</div><div class="v">${r.encaminhados_periodo}</div><div class="s">ganhos: ${r.ganhos_periodo}</div></div>
+      <div class="card kpi"><div class="l">1ª resposta média</div><div class="v">${s1a}</div><div class="s">${r.mensagens_periodo} mensagens</div></div>
+      <div class="card kpi"><div class="l">Custo de IA (estimado)</div><div class="v">US$ ${r.custo_estimado_usd.toFixed(2)}</div><div class="s">${r.uso_ia.reduce((s, u) => s + u.chamadas, 0)} chamadas</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:16px">
+      <div class="card"><h2>Aguardando o time <span class="badge ${r.aguardando_humano.length ? 'erro' : ''}">${r.aguardando_humano.length}</span></h2>${fila}</div>
+      <div class="card"><h2>Funil agora</h2>${etapas}<div class="row" style="margin-top:12px">${temp}</div></div>
+      <div class="card"><h2>Novos leads por dia</h2>${dias}</div>
+      <div class="card"><h2>Base de conhecimento</h2>
+        <p class="muted" style="margin-top:0">${r.lacunas_abertas ? `<b>${r.lacunas_abertas}</b> pergunta(s) de leads que o bot não soube responder.` : 'Nenhuma pergunta sem resposta.'}</p>
+        <a class="btn sm" href="#/lacunas">Ver lacunas</a> <a class="btn sm" href="#/conhecimento">Editar conhecimento</a>
+      </div>
+    </div>`;
+  $('#dias').addEventListener('change', (ev) => { E.dias = Number(ev.target.value); ls.set('sdr_dias', E.dias); vVisao(); });
+  ligarCliquesLead();
+}
+
+function ligarCliquesLead(raiz = $('#main')) {
+  raiz.querySelectorAll('[data-lead]').forEach((el) => el.addEventListener('click', () => { location.hash = `#/lead/${el.dataset.lead}`; }));
+}
+
+// ---------------- kanban ----------------
+async function vFunil(atualizacao = false) {
+  if (atualizacao && E.arrastando) return;
+  const busca = $('#k-busca')?.value ?? '';
+  const temp = $('#k-temp')?.value ?? '';
+  const leads = await api('GET', `/api/leads?q=${encodeURIComponent(busca)}&temperatura=${temp}`);
+  if (atualizacao && E.view !== 'funil') return;
+  const colunas = E.funil.etapas.map((e) => {
+    const itens = leads.filter((l) => l.etapa === e.id);
+    return `<div class="col" data-etapa="${esc(e.id)}"><div class="col-h"><span>${esc(e.nome)}</span><span class="badge">${itens.length}</span></div>
+      <div class="col-b">${itens.map((l) => `
+        <div class="kcard" draggable="true" data-id="${l.id}">
+          <div class="n"><span>${modoIcone(l)} ${esc(nomeLead(l))}</span>${tempBadge(l)}</div>
+          <div class="r">${esc(l.resumo || l.dados?.necessidade || 'Sem resumo ainda')}</div>
+          <div class="faint">${esc(fone(l))} · ${rel(l.ultima_msg_lead_em || l.criado_em)}</div>
+        </div>`).join('')}</div></div>`;
+  }).join('');
+  if (!$('#k-board')) {
+    $('#main').innerHTML = `
+      <div class="row" style="justify-content:space-between;margin-bottom:16px">
+        <div><h1>Funil</h1><p class="sub" style="margin:0">Arraste um card para mudar a etapa. 🤖 bot conduzindo · 🙋 time conduzindo · ⛔ saiu da lista</p></div>
+        <div class="row"><input type="search" id="k-busca" placeholder="Buscar" style="width:200px">
+        <select id="k-temp" style="width:auto"><option value="">Todas as temperaturas</option><option value="quente">Quentes</option><option value="morno">Mornos</option><option value="frio">Frios</option></select></div>
+      </div>
+      <div class="board" id="k-board"></div>`;
+    let t;
+    $('#k-busca').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => vFunil(), 300); });
+    $('#k-temp').addEventListener('change', () => vFunil());
+  }
+  $('#k-board').innerHTML = colunas;
+  $('#k-board').querySelectorAll('.kcard').forEach((c) => {
+    c.addEventListener('click', () => { location.hash = `#/lead/${c.dataset.id}`; });
+    c.addEventListener('dragstart', (ev) => { E.arrastando = true; ev.dataTransfer.setData('text/plain', c.dataset.id); });
+    c.addEventListener('dragend', () => { E.arrastando = false; });
+  });
+  $('#k-board').querySelectorAll('.col').forEach((col) => {
+    col.addEventListener('dragover', (ev) => { ev.preventDefault(); col.classList.add('over'); });
+    col.addEventListener('dragleave', () => col.classList.remove('over'));
+    col.addEventListener('drop', async (ev) => {
+      ev.preventDefault(); col.classList.remove('over'); E.arrastando = false;
+      const id = ev.dataTransfer.getData('text/plain');
+      try { await api('PATCH', `/api/leads/${id}`, { etapa: col.dataset.etapa }); toast(`Movido para ${etapaNome(col.dataset.etapa)}`); } catch (e) { toast(e.message); }
+      vFunil();
+    });
+  });
+}
+
+// ---------------- tabela de leads ----------------
+async function vLeads(atualizacao = false) {
+  if (!$('#t-corpo')) {
+    $('#main').innerHTML = `
+      <div class="row" style="justify-content:space-between;margin-bottom:16px">
+        <div><h1>Leads</h1><p class="sub" style="margin:0">Todos os contatos que falaram com o bot.</p></div>
+        <a class="btn" href="/api/exportar.csv">Exportar CSV</a>
+      </div>
+      <div class="card">
+        <div class="row" style="margin-bottom:12px">
+          <input type="search" id="t-busca" placeholder="Buscar por nome, telefone, dados, resumo, tag" style="flex:1;min-width:200px">
+          <select id="t-etapa" style="width:auto"><option value="">Todas as etapas</option>${E.funil.etapas.map((e) => `<option value="${esc(e.id)}">${esc(e.nome)}</option>`).join('')}</select>
+          <select id="t-temp" style="width:auto"><option value="">Todas as temperaturas</option><option value="quente">Quentes</option><option value="morno">Mornos</option><option value="frio">Frios</option></select>
+          <select id="t-modo" style="width:auto"><option value="">Bot e time</option><option value="bot">Bot conduzindo</option><option value="humano">Time conduzindo</option></select>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Lead</th><th>Etapa</th><th>Score</th><th>Conduz</th><th>Resumo</th><th>Última msg</th></tr></thead><tbody id="t-corpo"></tbody></table></div>
+        <div id="t-total" class="faint" style="margin-top:8px"></div>
+      </div>`;
+    let t;
+    $('#t-busca').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => vLeads(), 300); });
+    ['#t-etapa', '#t-temp', '#t-modo'].forEach((s) => $(s).addEventListener('change', () => vLeads()));
+  }
+  const qs = new URLSearchParams({ q: $('#t-busca').value, etapa: $('#t-etapa').value, temperatura: $('#t-temp').value, modo: $('#t-modo').value });
+  const leads = await api('GET', `/api/leads?${qs}`);
+  if (atualizacao && E.view !== 'leads') return;
+  $('#t-corpo').innerHTML = leads.map((l) => `
+    <tr data-lead="${l.id}">
+      <td><b>${esc(nomeLead(l))}</b><div class="faint">${esc(fone(l))}</div></td>
+      <td>${esc(etapaNome(l.etapa))}</td>
+      <td>${tempBadge(l)}</td>
+      <td>${modoIcone(l)} ${l.modo === 'humano' ? 'time' : 'bot'}</td>
+      <td style="max-width:380px">${esc((l.resumo || '').slice(0, 160))}${(l.tags || []).length ? `<div class="row" style="margin-top:4px">${l.tags.slice(0, 5).map((t) => `<span class="badge">${esc(t)}</span>`).join('')}</div>` : ''}</td>
+      <td class="faint" style="white-space:nowrap">${rel(l.ultima_msg_lead_em || l.criado_em)}</td>
+    </tr>`).join('') || `<tr><td colspan="6" class="empty">Nenhum lead encontrado.</td></tr>`;
+  $('#t-total').textContent = `${leads.length} lead(s)`;
+  ligarCliquesLead($('#t-corpo'));
+}
+
+// ---------------- gaveta do lead ----------------
+function fecharGaveta(mudarHash = true) {
+  if (!E.leadAberto) return;
+  E.leadAberto = null;
+  $('#gaveta').classList.add('hidden');
+  if (mudarHash && location.hash.startsWith('#/lead/')) history.back();
+}
+$('#g-fechar').addEventListener('click', () => fecharGaveta());
+$('#gaveta-bg').addEventListener('click', () => fecharGaveta());
+document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && E.leadAberto) fecharGaveta(); });
+
+async function abrirLead(id) {
+  const novo = E.leadAberto !== id;
+  E.leadAberto = id;
+  $('#gaveta').classList.remove('hidden');
+  if (novo) { $('#g-texto').value = ''; $('#g-thread').innerHTML = '<div class="empty">Carregando…</div>'; }
+  await carregarLead(novo);
+}
+
+async function carregarLead(rolar = false) {
+  const id = E.leadAberto;
+  if (!id) return;
+  let d;
+  try { d = await api('GET', `/api/leads/${id}`); } catch (e) { $('#g-thread').innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
+  if (E.leadAberto !== id) return;
+  const { lead: l, mensagens, eventos } = d;
+  $('#g-nome').textContent = `${modoIcone(l)} ${nomeLead(l)}`;
+  $('#g-sub').innerHTML = `${esc(fone(l))}${l.telefone && l.telefone !== '0000000000' ? ` · <a href="https://wa.me/${esc(l.telefone)}" target="_blank" rel="noopener">abrir no WhatsApp</a>` : ''} · desde ${hora(l.criado_em)}`;
+
+  const th = $('#g-thread');
+  const noFim = th.scrollHeight - th.scrollTop - th.clientHeight < 60;
+  th.innerHTML = mensagens.map((m) => {
+    const quem = { lead: nomeLead(l), bot: 'Bot', humano: 'Time', sistema: '' }[m.autor];
+    return `<div class="msg ${esc(m.autor)}">${esc(m.texto)}<div class="m">${esc(quem)} · ${hora(m.criado_em)}</div></div>`;
+  }).join('') || '<div class="empty">Sem mensagens.</div>';
+  if (rolar || noFim) th.scrollTop = th.scrollHeight;
+
+  const f = E.funil;
+  const ficha = $('#g-ficha');
+  const emEdicao = ficha.contains(document.activeElement) && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if (emEdicao && !rolar) return; // não atrapalha quem está digitando na ficha
+
+  const modoBox = l.optout
+    ? `<div class="card"><b>⛔ Saiu da lista</b><p class="faint" style="margin:6px 0 0">O bot não envia mais nada para este contato.</p></div>`
+    : l.modo === 'humano'
+      ? `<div class="card"><b>🙋 Time conduzindo</b><p class="faint" style="margin:6px 0 8px">${l.pausado_ate ? `O bot volta sozinho ${new Date(l.pausado_ate).toLocaleString('pt-BR')}.` : 'O bot só volta se você devolver.'}</p><button class="btn sm" id="g-devolver">Devolver ao bot</button></div>`
+      : `<div class="card"><b>🤖 Bot conduzindo</b><p class="faint" style="margin:6px 0 8px">Responder por aqui ou pelo celular pausa o bot.</p><button class="btn sm" id="g-assumir">Assumir conversa</button></div>`;
+
+  ficha.innerHTML = `
+    ${modoBox}
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:flex-end">
+        <div><label>Score</label><div class="score">${l.score}</div></div>
+        <span class="badge ${esc(l.temperatura)}" style="font-size:13px">${esc(l.temperatura)}</span>
+      </div>
+      <div style="margin-top:10px">${f.criterios.map((c) => {
+        const v = l.criterios?.[c.id];
+        return `<div class="crit" data-crit="${esc(c.id)}" title="Clique para alternar: atende → não atende → sem informação"><b class="${v === true ? 't' : v === false ? 'f' : ''}">${v === true ? '✓' : v === false ? '✕' : '?'}</b><span>${esc(c.descricao)} <span class="faint">(${c.peso})</span></span></div>`;
+      }).join('')}</div>
+    </div>
+    <div><label>Etapa</label><select id="g-etapa">${f.etapas.map((e) => `<option value="${esc(e.id)}" ${e.id === l.etapa ? 'selected' : ''}>${esc(e.nome)}</option>`).join('')}</select></div>
+    <div class="row" style="flex-wrap:nowrap">
+      <div style="flex:1"><label>Destino</label><select id="g-destino"><option value="">—</option>${(f.destinos || []).map((x) => `<option value="${esc(x.id)}" ${x.id === l.destino ? 'selected' : ''}>${esc(x.nome)}</option>`).join('')}</select></div>
+      <div style="flex:1"><label>Responsável</label><input type="text" id="g-resp" value="${esc(l.responsavel || '')}"></div>
+    </div>
+    <div><label>Resumo do bot</label><div class="muted">${esc(l.resumo || 'Ainda sem resumo.')}</div></div>
+    <div><label>Dados coletados</label>${f.campos.map((c) => `<div style="margin-bottom:6px"><span class="faint">${esc(c.rotulo)}</span><input type="text" data-campo="${esc(c.id)}" value="${esc(l.dados?.[c.id] || '')}"></div>`).join('')}</div>
+    <div><label>Tags (separadas por vírgula)</label><input type="text" id="g-tags" value="${esc((l.tags || []).join(', '))}"></div>
+    <div><label>Notas do time (o bot também lê)</label><textarea id="g-notas" rows="3">${esc(l.notas || '')}</textarea></div>
+    <label class="toggle"><input type="checkbox" id="g-optout" ${l.optout ? 'checked' : ''}><span class="sw"></span><span>Não enviar mais mensagens (opt-out)</span></label>
+    <div><label>Histórico</label><div class="timeline">${eventos.map((e) => `<div><span class="faint">${hora(e.criado_em)}</span> · ${descreverEvento(e)}</div>`).join('') || '<div class="faint">—</div>'}</div></div>
+    <button class="btn danger sm" id="g-apagar" style="align-self:flex-start">Apagar lead</button>`;
+
+  const salvar = async (patch, msg) => {
+    try { await api('PATCH', `/api/leads/${l.id}`, patch); if (msg) toast(msg); carregarLead(); refrescarViewAtual(); } catch (e) { toast(e.message); }
+  };
+  $('#g-devolver')?.addEventListener('click', async () => { await api('POST', `/api/leads/${l.id}/devolver`); toast('Lead devolvido ao bot'); carregarLead(); refrescarViewAtual(); });
+  $('#g-assumir')?.addEventListener('click', () => salvar({ modo: 'humano' }, 'Você assumiu a conversa: o bot fica pausado para este lead'));
+  $('#g-etapa').addEventListener('change', (ev) => salvar({ etapa: ev.target.value }, `Etapa: ${etapaNome(ev.target.value)}`));
+  $('#g-destino').addEventListener('change', (ev) => salvar({ destino: ev.target.value || null }));
+  $('#g-resp').addEventListener('change', (ev) => salvar({ responsavel: ev.target.value }));
+  $('#g-tags').addEventListener('change', (ev) => salvar({ tags: ev.target.value.split(',') }));
+  $('#g-notas').addEventListener('change', (ev) => salvar({ notas: ev.target.value }, 'Notas salvas'));
+  $('#g-optout').addEventListener('change', (ev) => salvar({ optout: ev.target.checked }));
+  ficha.querySelectorAll('[data-campo]').forEach((inp) => inp.addEventListener('change', () => salvar({ dados: { [inp.dataset.campo]: inp.value.trim() || null } })));
+  ficha.querySelectorAll('[data-crit]').forEach((el) => el.addEventListener('click', () => {
+    const v = l.criterios?.[el.dataset.crit];
+    salvar({ criterios: { [el.dataset.crit]: v === true ? false : v === false ? null : true } });
+  }));
+  $('#g-apagar').addEventListener('click', async () => {
+    if (!confirm(`Apagar ${nomeLead(l)} e toda a conversa? Não dá para desfazer.`)) return;
+    await api('DELETE', `/api/leads/${l.id}`);
+    fecharGaveta(); refrescarViewAtual();
+  });
+}
+
+function descreverEvento(e) {
+  const d = e.detalhe || {};
+  switch (e.tipo) {
+    case 'lead_criado': return 'Lead criado';
+    case 'etapa': return `${esc(etapaNome(d.de))} → <b>${esc(etapaNome(d.para))}</b> <span class="faint">(${d.por === 'time' ? 'time' : 'bot'})</span>${d.motivo ? `<div class="faint">${esc(d.motivo)}</div>` : ''}`;
+    case 'transferido': return `<b>Transferido</b>${d.destino ? ` para ${esc(d.destino)}` : ''}${d.motivo ? `<div class="faint">${esc(d.motivo)}</div>` : ''}`;
+    case 'humano_assumiu': return `Time assumiu <span class="faint">(${esc(d.via)})</span>`;
+    case 'bot_retomou': return `Bot retomou <span class="faint">(${esc(d.motivo)})</span>`;
+    case 'followup': return `Follow-up nº ${esc(d.numero)} enviado`;
+    case 'material_enviado': return `Material enviado: ${esc(d.material)}`;
+    case 'agendamento_enviado': return 'Link de agendamento enviado';
+    case 'optout': return '<b>Saiu da lista</b>';
+    case 'desqualificado': return `Desqualificado${d.motivo ? `<div class="faint">${esc(d.motivo)}</div>` : ''}`;
+    case 'erro_ia': return `<span style="color:var(--danger)">Erro na IA</span><div class="faint">${esc(d.erro)}</div>`;
+    case 'recusa_ia': return '<span style="color:var(--danger)">IA recusou responder</span>';
+    case 'erro_envio': return `<span style="color:var(--danger)">Falha no envio</span><div class="faint">${esc(d.erro)}</div>`;
+    default: return esc(e.tipo);
+  }
+}
+
+async function enviarComoTime() {
+  const texto = $('#g-texto').value.trim();
+  if (!texto || !E.leadAberto) return;
+  $('#g-enviar').disabled = true;
+  try {
+    await api('POST', `/api/leads/${E.leadAberto}/mensagem`, { texto });
+    $('#g-texto').value = '';
+    await carregarLead(true);
+  } catch (e) { toast(e.message); } finally { $('#g-enviar').disabled = false; }
+}
+$('#g-enviar').addEventListener('click', enviarComoTime);
+$('#g-texto').addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); enviarComoTime(); } });
+
+// ---------------- conhecimento ----------------
+async function vConhecimento() {
+  const docs = await api('GET', '/api/conhecimento');
+  let atual = ls.get('sdr_doc', docs[0]?.nome);
+  if (!docs.some((d) => d.nome === atual)) atual = docs[0]?.nome;
+  const total = Math.round(docs.reduce((s, d) => s + d.conteudo.length, 0) / 4);
+  $('#main').innerHTML = `
+    <h1>Conhecimento</h1>
+    <p class="sub">Tudo o que o bot sabe sobre a empresa. Ele só afirma o que estiver aqui. As mudanças valem na próxima mensagem. Total aproximado: ${total.toLocaleString('pt-BR')} tokens.</p>
+    <div class="split">
+      <div class="card files">
+        ${docs.map((d) => `<a data-doc="${esc(d.nome)}" class="${d.nome === atual ? 'on' : ''}">${esc(d.nome)}<div class="faint">${Math.round(d.conteudo.length / 4)} tokens · ${rel(d.atualizado_em)}</div></a>`).join('') || '<div class="empty">Nenhum arquivo.</div>'}
+        <button class="btn sm" id="c-novo" style="margin-top:10px">+ Novo arquivo</button>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:10px">
+        ${atual ? `
+        <div class="row" style="justify-content:space-between"><b>${esc(atual)}</b><div class="row"><button class="btn danger sm" id="c-apagar">Apagar</button><button class="btn primary sm" id="c-salvar">Salvar (Ctrl+S)</button></div></div>
+        <textarea class="editor mono" id="c-texto" spellcheck="false">${esc(docs.find((d) => d.nome === atual)?.conteudo)}</textarea>
+        <div class="faint">Escreva como um manual para um vendedor novo: fatos, preços, condições, respostas prontas. Markdown é aceito.</div>` : '<div class="empty">Crie o primeiro arquivo.</div>'}
+      </div>
+    </div>`;
+  document.querySelectorAll('[data-doc]').forEach((a) => a.addEventListener('click', () => { ls.set('sdr_doc', a.dataset.doc); vConhecimento(); }));
+  $('#c-novo').addEventListener('click', async () => {
+    let nome = prompt('Nome do arquivo (ex.: 05-politicas.md)');
+    if (!nome) return;
+    if (!nome.toLowerCase().endsWith('.md')) nome += '.md';
+    try { await api('PUT', `/api/conhecimento/${encodeURIComponent(nome)}`, { conteudo: `# ${nome.replace(/\.md$/i, '')}\n\n` }); ls.set('sdr_doc', nome); vConhecimento(); } catch (e) { toast(e.message); }
+  });
+  if (!atual) return;
+  const salvar = async () => {
+    try { await api('PUT', `/api/conhecimento/${encodeURIComponent(atual)}`, { conteudo: $('#c-texto').value }); toast('Salvo. Vale a partir da próxima mensagem.'); } catch (e) { toast(e.message); }
+  };
+  $('#c-salvar').addEventListener('click', salvar);
+  $('#c-texto').addEventListener('keydown', (ev) => { if ((ev.ctrlKey || ev.metaKey) && ev.key === 's') { ev.preventDefault(); salvar(); } });
+  $('#c-apagar').addEventListener('click', async () => {
+    if (!confirm(`Apagar ${atual}?`)) return;
+    await api('DELETE', `/api/conhecimento/${encodeURIComponent(atual)}`);
+    vConhecimento();
+  });
+}
+
+// ---------------- lacunas ----------------
+async function vLacunas() {
+  const status = ls.get('sdr_lac', 'aberta');
+  const itens = await api('GET', `/api/lacunas?status=${status}`);
+  $('#main').innerHTML = `
+    <h1>Lacunas</h1>
+    <p class="sub">Perguntas reais de leads que a base de conhecimento não respondia. Responda uma vez e o bot passa a saber: a resposta entra em <span class="mono">99-respostas-do-time.md</span>.</p>
+    <div class="row" style="margin-bottom:12px">${['aberta', 'resolvida', 'ignorada'].map((s) => `<button class="btn sm ${s === status ? 'primary' : ''}" data-st="${s}">${{ aberta: 'Abertas', resolvida: 'Resolvidas', ignorada: 'Ignoradas' }[s]}</button>`).join('')}</div>
+    <div class="grid">${itens.map((l) => `
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><b>${esc(l.pergunta)}</b><span class="faint">${rel(l.criado_em)}${l.lead_id ? ` · <a href="#/lead/${l.lead_id}">${esc(l.nome_whatsapp || 'lead #' + l.lead_id)}</a>` : ''}</span></div>
+        ${status === 'aberta' ? `
+          <textarea rows="2" data-resp="${l.id}" placeholder="Resposta que o time daria" style="margin-top:10px"></textarea>
+          <div class="row" style="margin-top:8px"><button class="btn primary sm" data-ok="${l.id}">Responder e ensinar o bot</button><button class="btn sm" data-ign="${l.id}">Ignorar</button></div>`
+        : l.resposta ? `<div class="muted" style="margin-top:6px">${esc(l.resposta)}</div>` : ''}
+      </div>`).join('') || '<div class="card empty">Nada por aqui.</div>'}</div>`;
+  document.querySelectorAll('[data-st]').forEach((b) => b.addEventListener('click', () => { ls.set('sdr_lac', b.dataset.st); vLacunas(); }));
+  document.querySelectorAll('[data-ok]').forEach((b) => b.addEventListener('click', async () => {
+    const resposta = $(`[data-resp="${b.dataset.ok}"]`).value.trim();
+    if (!resposta) return toast('Escreva a resposta primeiro');
+    try { await api('POST', `/api/lacunas/${b.dataset.ok}/resolver`, { resposta }); toast('Adicionado ao conhecimento'); vLacunas(); } catch (e) { toast(e.message); }
+  }));
+  document.querySelectorAll('[data-ign]').forEach((b) => b.addEventListener('click', async () => { await api('POST', `/api/lacunas/${b.dataset.ign}/ignorar`); vLacunas(); }));
+}
+
+// ---------------- simulador ----------------
+async function vSimulador() {
+  const sessao = ls.get('sdr_sim', 'painel');
+  $('#main').innerHTML = `
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div><h1>Simulador</h1><p class="sub" style="margin:0">Converse com o bot como se fosse um lead. Não usa o WhatsApp e não entra nas métricas, mas consome créditos de IA.</p></div>
+      <button class="btn" id="s-reset">Reiniciar conversa</button>
+    </div>
+    <div class="sim">
+      <section class="chat">
+        <div class="thread" id="s-thread"></div>
+        <div class="composer"><div class="row" style="flex-wrap:nowrap"><input type="text" id="s-texto" placeholder="Escreva como o lead escreveria…"><button class="btn primary" id="s-enviar">Enviar</button></div></div>
+      </section>
+      <aside class="card" id="s-estado" style="overflow-y:auto"></aside>
+    </div>`;
+  const pintar = (lead, mensagens, eventos) => {
+    $('#s-thread').innerHTML = mensagens.length
+      ? mensagens.map((m) => `<div class="msg ${esc(m.autor)}">${esc(m.texto)}</div>`).join('')
+      : '<div class="empty">Comece com algo como “oi, vi o anúncio de vocês”.</div>';
+    $('#s-thread').scrollTop = $('#s-thread').scrollHeight;
+    $('#s-estado').innerHTML = lead ? `
+      <h2>Estado do lead</h2>
+      <div class="row"><span class="badge ok">${esc(etapaNome(lead.etapa))}</span>${tempBadge(lead)}<span class="badge">${modoIcone(lead)} ${lead.modo === 'humano' ? 'time' : 'bot'}</span></div>
+      ${lead.modo === 'humano' ? '<p class="faint">Transferido para o time: o bot parou de responder. Reinicie para testar de novo.</p>' : ''}
+      <label style="display:block;margin-top:12px" class="faint">Resumo</label><div>${esc(lead.resumo || '—')}</div>
+      <label style="display:block;margin-top:12px" class="faint">Dados</label>
+      <div class="mono" style="white-space:pre-wrap">${esc(Object.entries(lead.dados || {}).map(([k, v]) => `${k}: ${v}`).join('\n') || '—')}</div>
+      <label style="display:block;margin-top:12px" class="faint">Últimos eventos</label>
+      <div class="timeline">${(eventos || []).slice(0, 6).map((e) => `<div>${descreverEvento(e)}</div>`).join('') || '—'}</div>` : '<h2>Estado do lead</h2><div class="faint">Aparece aqui depois da primeira mensagem.</div>';
+  };
+  // retoma a conversa de teste desta sessão, se existir
+  const atual = await api('GET', `/api/simulador/${encodeURIComponent(sessao)}`).catch(() => ({}));
+  if (atual.lead) pintar(atual.lead, atual.mensagens, atual.eventos); else pintar(null, []);
+  const enviar = async () => {
+    const texto = $('#s-texto').value.trim();
+    if (!texto) return;
+    $('#s-texto').value = '';
+    $('#s-enviar').disabled = true;
+    const th = $('#s-thread');
+    if (th.querySelector('.empty')) th.innerHTML = '';
+    th.insertAdjacentHTML('beforeend', `<div class="msg lead">${esc(texto)}</div><div class="msg sistema" id="s-digitando">digitando…</div>`);
+    th.scrollTop = th.scrollHeight;
+    try {
+      const r = await api('POST', '/api/simulador', { sessao, texto });
+      const d = await api('GET', `/api/leads/${r.lead.id}`);
+      pintar(d.lead, d.mensagens, d.eventos);
+    } catch (e) {
+      $('#s-digitando')?.remove();
+      th.insertAdjacentHTML('beforeend', `<div class="err">${esc(e.message)}</div>`);
+    } finally { $('#s-enviar').disabled = false; $('#s-texto').focus(); }
+  };
+  $('#s-enviar').addEventListener('click', enviar);
+  $('#s-texto').addEventListener('keydown', (ev) => { if (ev.key === 'Enter') enviar(); });
+  $('#s-reset').addEventListener('click', async () => { await api('DELETE', `/api/simulador/${encodeURIComponent(sessao)}`); pintar(null, []); });
+  $('#s-texto').focus();
+}
+
+// ---------------- configurações ----------------
+async function vConfig() {
+  await carregarStatus();
+  const [bot, funil] = await Promise.all([api('GET', '/api/config/bot'), api('GET', '/api/config/funil')]);
+  const s = E.status;
+  const w = s.whatsapp;
+  $('#main').innerHTML = `
+    <h1>Configurações</h1>
+    <p class="sub">Comportamento do bot e estrutura do funil. As mudanças valem na próxima mensagem, sem reiniciar.</p>
+    <div class="grid cols-2">
+      <div class="card">
+        <h2>Integração</h2>
+        <div class="grid" style="gap:8px">
+          <div>WhatsApp (WA-AKG): ${!w.configurado ? '<span class="badge erro">não configurado</span>' : w.conectado ? `<span class="badge ok">conectado · ${esc(w.sessao)}</span>` : `<span class="badge erro">${esc(w.status || w.erro || 'desconectado')}</span>`}</div>
+          <div>Claude: ${s.ia_configurada ? `<span class="badge ok">${esc(s.modelo)} · esforço ${esc(s.esforco)}</span>` : '<span class="badge erro">ANTHROPIC_API_KEY ausente</span>'}</div>
+          <div>Webhook: <span class="mono">${esc(s.webhook_url)}</span> ${s.webhook_assinado ? '<span class="badge ok">assinado</span>' : '<span class="badge erro">sem segredo</span>'}</div>
+          <div class="faint">Para registrar o webhook no WA-AKG: <span class="mono">npm run registrar-webhook</span>. Desative o auto-reply e a mensagem de boas-vindas do WA-AKG nessa sessão para não haver respostas duplicadas.</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>O que cada arquivo controla</h2>
+        <p class="muted" style="margin-top:0"><b>bot.json</b>: nome, persona, tom, modelo e esforço do Claude, horário do time, espera antes de responder, pausa após resposta humana, link de agendamento, palavras de opt-out.</p>
+        <p class="muted" style="margin-bottom:0"><b>funil.json</b>: etapas, dados a coletar, critérios e pesos do score, faixas quente/morno, regras de transferência e desqualificação, destinos (WhatsApp de quem recebe o lead), materiais e follow-ups.</p>
+      </div>
+    </div>
+    <div class="grid cols-2" style="margin-top:16px">
+      ${['bot', 'funil'].map((q) => `
+      <div class="card">
+        <div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">${q}.json</h2><button class="btn primary sm" data-salvar="${q}">Salvar</button></div>
+        <div class="err hidden" id="e-${q}"></div>
+        <textarea class="editor mono" id="j-${q}" spellcheck="false" style="min-height:420px">${esc(JSON.stringify(q === 'bot' ? bot : funil, null, 2))}</textarea>
+      </div>`).join('')}
+    </div>`;
+  document.querySelectorAll('[data-salvar]').forEach((b) => b.addEventListener('click', async () => {
+    const q = b.dataset.salvar;
+    const caixa = $(`#e-${q}`);
+    caixa.classList.add('hidden');
+    let obj;
+    try { obj = JSON.parse($(`#j-${q}`).value); } catch (e) { caixa.textContent = `JSON inválido: ${e.message}`; caixa.classList.remove('hidden'); return; }
+    try {
+      await api('PUT', `/api/config/${q}`, obj);
+      toast(`${q}.json salvo`);
+      if (q === 'funil') E.funil = obj;
+      carregarStatus();
+    } catch (e) { caixa.textContent = e.message; caixa.classList.remove('hidden'); }
+  }));
+}
+
+// ---------------- ciclo ----------------
+function refrescarViewAtual() {
+  const fn = { visao: vVisao, funil: vFunil, leads: vLeads }[E.view];
+  if (fn) fn(true).catch(() => {});
+}
+
+async function iniciar() {
+  try { E.funil = await api('GET', '/api/funil'); } catch { return; }
+  $('#tela-login').classList.add('hidden');
+  $('#tela-app').classList.remove('hidden');
+  carregarStatus();
+  rotear();
+  clearInterval(E.timer);
+  E.timer = setInterval(() => {
+    if (document.hidden) return;
+    refrescarViewAtual();
+    if (E.leadAberto) carregarLead();
+  }, 6000);
+  setInterval(carregarStatus, 60000);
+}
+
+iniciar();
+</script>
+</body>
+</html>

@@ -37,7 +37,7 @@
 
 ### **Caption Guidelines**
 
-* **Tamanho:** Curto — 1 a 3 frases antes do bloco de hashtags
+* **Tamanho:** gancho nos primeiros 125 caracteres (o que aparece antes do "mais"). Carrossel: legenda curta, os slides carregam o conteúdo. Estático/Reels: 150 a 1.500 caracteres (limite 2.200). Ver `instagram_skills.md`
 * **Estrutura:** Hook com prova/resultado → Como funciona (breve) → CTA como consequência natural → Quebra de linha → Hashtags
 * **Tom:** Direto e consultivo, com números reais e caso ancorado — nunca superlativo vazio
 * **Emojis:** Máximo 1–2, estratégicos — nunca excessivo
@@ -53,8 +53,8 @@ Manda uma mensagem e descobre quanto você já acumulou.
 
 ### **Regras de Hashtags**
 
-* Use **3–5 hashtags** por post
-* Coloque hashtags **depois do CTA**, separadas por uma quebra de linha
+* Use **3–5 hashtags dimensionadas** por post: 2–3 de nicho (<50 mil posts), 1–2 médias (50–500 mil), 0–1 ampla (>500 mil). Montar com `ig-hashtag-strategist` e rodar o conjunto entre posts
+* Coloque hashtags **depois do CTA**, separadas por uma quebra de linha, ou no primeiro comentário. Nunca no meio de frase
 * Mix de marca (`#ViajaON`) + produto (`#MilhasEPontos`, `#TransferênciaBonificada`) + nicho (`#ViagemExecutiva`, `#ConciergeDeViagens`)
 * Referencie `brand_identity.md` → Seção Visual Identity para paleta e tipografia de apoio
 
@@ -164,7 +164,7 @@ Nesse vídeo mostro como identificar milhas e pontos parados no seu cartão e tr
 | ----- | ----- | ----- | ----- |
 | **Feed dimensions** | 1080×1350 (4:5) | N/A | 1920×1080 |
 | **Vertical dimensions** | 1080×1920 | N/A | 1080×1920 |
-| **Caption length** | 1–3 frases | 1–3 frases | 2–3 frases |
+| **Caption length** | gancho em 125 chars; carrossel curta, estático/Reels 150–1.500 | 1–3 frases | 2–3 frases |
 | **CTA obrigatório** | ✅ Sim | ❌ Opcional | ✅ Sim |
 | **Hashtags** | 3–5, obrigatórias | 0–1, opcional | Na description/tags |
 | **Emojis** | 1–2 | 0–1 | ❌ Evitar em títulos |

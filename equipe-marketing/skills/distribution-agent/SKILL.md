@@ -42,6 +42,7 @@ conta própria ao terminar o pipeline.
 4. Horários sugeridos por plataforma — heurística simples baseada no público (executivos/donos
    de empresa), não dado real de analytics; ajustar se o Luís tiver dado melhor
 5. Checklist de `knowledge/brand_identity.md` → Brand Governance, pra revisar antes de postar
+6. Legenda do Instagram auditada com `ig-humanizer --mode audit` (ver `knowledge/instagram_skills.md`). Publora só com chave configurada e aprovação explícita do Luís
 
 ## Antes de usar em produção
 

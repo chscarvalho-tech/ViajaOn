@@ -10,6 +10,13 @@ equivalente feito para outro cliente (Xamã Studio) — todo o conteúdo (script
 base de objeções, fluxo de conversão) foi reescrito do zero para o Método ROTA e o público da
 ViajaON. Código Node.js real, testado localmente.
 
+## [`whatsapp-sdr/`](./whatsapp-sdr)
+
+Atendente virtual de WhatsApp (receptivo): faz a triagem de quem chama, qualifica pelo perfil de
+viagem e de milhas, leva à conversa de 30 minutos com o Luís ou à cotação, e tem painel de gestão
+no navegador. **Instalação e informações pendentes:** abra a pasta `whatsapp-sdr` no VS Code e peça
+ao Claude Code "instalar o bot" — o `CLAUDE.md` de lá conduz o passo a passo.
+
 ## [`equipe-marketing/`](./equipe-marketing)
 
 Pipeline de automação de conteúdo (research → ad creative → video → copy → distribution),

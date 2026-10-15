@@ -70,9 +70,11 @@ Tudo grava em `outputs/<task>_<data>/`.
 
 ```
 knowledge/           brand_identity.md, product_campaign.md, platform_guidelines.md — fonte
-                      da verdade pra todo conteúdo gerado (copiados de Equipe ViajaOn)
+                      da verdade pra todo conteúdo gerado (copiados de Equipe ViajaOn);
+                      instagram_skills.md — uso das skills globais ig-* nesta equipe
 assets/               logo, paleta, foto do Luís (porta-voz) — copiados de Equipe ViajaOn
-skills/*/SKILL.md    instruções de cada skill pro Claude Code
+skills/*/SKILL.md    instruções de cada skill pro Claude Code (clone-luis-viajaon = voz do
+                      Luís e revisão final aplicada a todas as outras)
 scripts/              implementação real: research, render-ad, render-video, distribute,
                       run-campaign (orchestrator sequencial)
 scripts/lib/          Chrome headless, ffmpeg, geração de HTML determinístico

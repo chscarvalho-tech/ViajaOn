@@ -1,0 +1,60 @@
+{
+  "etapas": [
+    { "id": "novo", "nome": "Novo contato", "tipo": "ativa", "objetivo": "Cumprimentar, se apresentar como assistente virtual da ViajaON e descobrir o nome e o que trouxe a pessoa (uma viagem específica, milhas paradas, uma cotação, ou se já é cliente)." },
+    { "id": "triagem", "nome": "Entendendo a viagem", "tipo": "ativa", "objetivo": "Entender a viagem (destino, período, quantas pessoas, classe) e o perfil de milhas (cartões, programas, saldo aproximado, frequência de viagens). Uma pergunta por vez, respondendo dúvidas com o Método ROTA e os casos reais." },
+    { "id": "qualificado", "nome": "Pronto para o diagnóstico", "tipo": "ativa", "objetivo": "Perfil com fit. Mostrar em uma ou duas frases o que a ViajaON faria no caso dele (Reconhecimento e Otimização) e convidar para a conversa de 30 minutos com o Luís para mapear o saldo. Se aceitar, enviar o link de agendamento ou transferir." },
+    { "id": "cotacao", "nome": "Cotação solicitada", "tipo": "ativa", "objetivo": "Pedido concreto de pacote, hotel, cruzeiro, locação ou passagem. Coletar destino, datas, número de pessoas, classe e cidade de origem; perguntar se tem milhas ou cartão que acumula pontos. Com esses dados, transferir para o Luís montar a cotação." },
+    { "id": "nutricao", "nome": "Nutrição", "tipo": "ativa", "objetivo": "Interesse real, mas sem viagem no horizonte ou sem perfil agora. Responder com conteúdo útil, oferecer material quando houver e deixar a porta aberta, sem pressionar." },
+    { "id": "encaminhado", "nome": "Com o Luís", "tipo": "humano", "objetivo": "Lead transferido para o Luís. O bot não conduz mais." },
+    { "id": "desqualificado", "nome": "Fora do perfil", "tipo": "final", "objetivo": "Não é cliente de viagem (fornecedor, vaga, spam, assunto alheio). Encerrar com educação e indicar o caminho certo quando houver." },
+    { "id": "ganho", "nome": "Cliente fechado", "tipo": "final", "manual": true, "objetivo": "Fechou viagem ou serviço." },
+    { "id": "perdido", "nome": "Perdido", "tipo": "final", "manual": true, "objetivo": "Não fechou." }
+  ],
+  "campos": [
+    { "id": "nome", "rotulo": "Nome", "descricao": "Primeiro nome de quem está falando." },
+    { "id": "motivo", "rotulo": "Motivo do contato", "descricao": "Em poucas palavras: viagem específica, milhas paradas, cotação de pacote/hotel/cruzeiro, cliente em viagem, outro." },
+    { "id": "destino", "rotulo": "Destino", "descricao": "Destino ou tipo de viagem desejada." },
+    { "id": "periodo", "rotulo": "Período", "descricao": "Quando pretende viajar (mês/ano ou datas) e por quantos dias." },
+    { "id": "viajantes", "rotulo": "Viajantes", "descricao": "Quantas pessoas e quem (casal, família com filhos, sócios)." },
+    { "id": "classe", "rotulo": "Classe / padrão", "descricao": "Classe de voo desejada (executiva, econômica, primeira) e padrão de hotel." },
+    { "id": "origem", "rotulo": "Cidade de origem", "descricao": "De onde sai a viagem." },
+    { "id": "cartoes_programas", "rotulo": "Cartões e programas", "descricao": "Cartões de crédito (e categoria: black, platinum...) e programas de milhas que usa (Azul Fidelidade, Smiles, LATAM Pass, Livelo, Esfera etc.)." },
+    { "id": "saldo_milhas", "rotulo": "Saldo aproximado", "descricao": "Saldo aproximado de pontos/milhas, se souber." },
+    { "id": "frequencia", "rotulo": "Viagens por ano", "descricao": "Quantas viagens faz por ano e quantas internacionais." },
+    { "id": "email", "rotulo": "E-mail", "descricao": "E-mail, se a pessoa informar." }
+  ],
+  "criterios": [
+    { "id": "viaja_com_frequencia", "peso": 25, "descricao": "Viaja com frequência: 3 ou mais viagens por ano, ou viagens internacionais recorrentes." },
+    { "id": "tem_pontos_ou_cartao_premium", "peso": 25, "descricao": "Tem cartão de crédito premium/black ou saldo relevante em programas de milhas (ou acumula pontos todo mês)." },
+    { "id": "viagem_no_horizonte", "peso": 20, "descricao": "Tem uma viagem com destino ou período definido nos próximos 12 meses." },
+    { "id": "busca_padrao_superior", "peso": 15, "descricao": "Busca classe executiva, hotel de categoria superior ou roteiro personalizado." },
+    { "id": "decide_a_viagem", "peso": 10, "descricao": "Decide a viagem ou participa diretamente da decisão." },
+    { "id": "engajado", "peso": 5, "descricao": "Responde com interesse e dá detalhes." }
+  ],
+  "faixas": { "quente": 65, "morno": 35 },
+  "regras_transferencia": [
+    "A pessoa pede para falar com uma pessoa ou com o Luís.",
+    "Lead qualificado aceitou a conversa de 30 minutos e não há link de agendamento configurado.",
+    "Pergunta sobre preço do serviço, honorários, taxa ou modelo de cobrança da ViajaON (a política não está documentada: transfira, sem estimar valores).",
+    "Pergunta sobre como a ViajaON acessa contas de programas de milhas, senhas ou dados de cartão (nunca peça nem aceite senha, código de verificação ou número de cartão).",
+    "Pedido de cotação concreta (pacote, hotel, cruzeiro, locação ou passagem) com destino, período e número de pessoas já coletados.",
+    "Cliente atual em viagem ou com viagem já emitida que precisa de ajuda (remarcação, cancelamento, problema com voo ou hotel): transfira na hora para atendimento_viagem.",
+    "Pergunta sobre disponibilidade real, valor de passagem em milhas, promoção específica, visto ou documentação que a base de conhecimento não responde e que é decisiva para a pessoa."
+  ],
+  "regras_desqualificacao": [
+    "Fornecedor, parceria comercial, candidato a vaga, pesquisa ou spam: agradeça e diga que vai repassar ao Luís (registre em motivo).",
+    "Assunto sem relação com viagem."
+  ],
+  "destinos": [
+    { "id": "luis_comercial", "nome": "Luís (diagnóstico e cotações)", "whatsapp": "", "quando": "Leads qualificados, pedidos de cotação, dúvidas de preço do serviço ou de acesso a contas, e quem pediu para falar com uma pessoa." },
+    { "id": "atendimento_viagem", "nome": "Atendimento a clientes em viagem", "whatsapp": "", "quando": "Clientes atuais com viagem emitida ou em andamento que precisam de suporte (etapa Acompanhamento do Método ROTA)." }
+  ],
+  "materiais": [
+    { "id": "ebook_milhas", "nome": "eBook de milhas da ViajaON", "tipo": "documento", "url": "", "nome_arquivo": "eBook-milhas-ViajaON.pdf", "legenda": "", "quando": "a pessoa quer entender melhor como funcionam milhas e pontos, ou está em nutrição sem viagem definida." }
+  ],
+  "followups": [
+    { "apos_horas": 24, "etapas": ["novo", "triagem", "qualificado", "cotacao"], "mensagem": "{nome|Oi}, fico à disposição para seguir com a sua viagem. Se quiser, me conta o que falta e eu já te digo o próximo passo." },
+    { "apos_horas": 72, "etapas": ["triagem", "qualificado", "cotacao"], "mensagem": "{nome|Oi}, um ponto que costuma pesar: muitos clientes achavam que não tinham milhas suficientes para uma viagem em executiva e descobriram que tinham, via transferência bonificada ou emissão via parceiros. Se quiser ver o que dá para fazer com o que você já tem, é só me responder." },
+    { "apos_horas": 240, "etapas": ["triagem", "qualificado", "nutricao", "cotacao"], "mensagem": "{nome|Oi}, vou deixar nossa conversa em pausa por aqui. Os pontos que você já tem continuam disponíveis, e o mapeamento com o Luís leva 30 minutos quando fizer sentido. A porta fica aberta." }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "whatsapp-sdr-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chatbot SDR para WhatsApp (via WA-AKG + Claude): triagem de leads, funil, base de conhecimento e painel de gestão.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "registrar-webhook": "node scripts/registrar-webhook.js",
+    "cli": "node cli.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.134.0"
+  }
+}

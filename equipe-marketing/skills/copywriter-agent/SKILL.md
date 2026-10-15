@@ -17,6 +17,8 @@ Antes de escrever qualquer copy, leia:
 - `knowledge/brand_identity.md` — voice & tone, o que a marca não é, exemplos aprovados/reprovados
 - `knowledge/product_campaign.md` — Método ROTA, selling points, ordem de prioridade
 - `knowledge/platform_guidelines.md` — specs e regras de formatação por plataforma
+- `skills/clone-luis-viajaon/SKILL.md` — voz do Luís, proibições de linguagem e checklist de revisão obrigatório antes de entregar
+- `knowledge/instagram_skills.md` — skills `ig-*` (legenda, carrossel, hashtags, humanizer) e o que prevalece quando conflitam com a marca. Para Instagram: rascunhar com `ig-caption-writer`/`ig-carousel-planner`, revisar com `clone-luis-viajaon`, auditar com `ig-humanizer --mode audit`
 
 Se brand guideline entrar em conflito com o que "soa bem" genericamente, a guideline vence.
 
@@ -36,7 +38,7 @@ entre plataformas — o ângulo é o mesmo, o texto é adaptado.
 
 | Plataforma | Tom | Tamanho | CTA | Hashtags |
 |---|---|---|---|---|
-| Instagram | Editorial, premium, discreto | 1–3 frases + hashtags | Sempre, consequência natural | 3–5, depois do CTA |
+| Instagram | Editorial, premium, discreto | Gancho nos primeiros 125 chars; carrossel curta, estático/Reels 150–1.500 chars | 1 CTA, consequência natural | 3–5 dimensionadas (`ig-hashtag-strategist`), depois do CTA ou no 1º comentário |
 | Threads | Direto, técnico, seco | 1–3 frases curtas, máx. 500 chars | Opcional | 0–1, nunca no início |
 | YouTube | Consultivo, técnico-acessível | Título 60–70 chars, description 2–3 frases | Sempre, com contato | Nas tags/description |
 
