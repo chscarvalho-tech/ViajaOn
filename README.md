@@ -1,30 +1,20 @@
-# ViajaOn
+# Atendente virtual da ViajaON no WhatsApp
 
-Repositório com dois projetos independentes para a ViajaON (agência de concierge de milhas e
-pontos), cada um com seu próprio README detalhado:
+Atende quem chama a ViajaON no WhatsApp: entende a viagem e o perfil de milhas da pessoa, responde dúvidas com base no Método ROTA e leva para a conversa de 30 minutos com o Luís ou para a cotação. Quando precisa de uma pessoa, passa o atendimento para o Luís e avisa no WhatsApp dele com o resumo do cliente.
 
-## [`whatsapp-bot/`](./whatsapp-bot)
+Tem um painel no navegador para acompanhar tudo: clientes em cada etapa, conversas, quem está esperando atendimento e perguntas que o bot ainda não sabe responder.
 
-Automação de prospecção (LinkedIn + WhatsApp) e bot de suporte, adaptado de um projeto
-equivalente feito para outro cliente (Xamã Studio) — todo o conteúdo (scripts de abordagem,
-base de objeções, fluxo de conversão) foi reescrito do zero para o Método ROTA e o público da
-ViajaON. Código Node.js real, testado localmente.
+## Como instalar
 
-## [`whatsapp-sdr/`](./whatsapp-sdr)
+1. Instale o [Node.js](https://nodejs.org) (versão LTS) e o [VS Code](https://code.visualstudio.com) com a extensão do Claude Code.
+2. No VS Code: `Ctrl+Shift+P` → **Git: Clone** → cole `https://github.com/chscarvalho-tech/ViajaOn` → escolha uma pasta e abra o projeto.
+3. No Claude Code, escreva: **instalar o bot**.
 
-Atendente virtual de WhatsApp (receptivo): faz a triagem de quem chama, qualifica pelo perfil de
-viagem e de milhas, leva à conversa de 30 minutos com o Luís ou à cotação, e tem painel de gestão
-no navegador. **Instalação e informações pendentes:** abra a pasta `whatsapp-sdr` no VS Code e peça
-ao Claude Code "instalar o bot" — o `CLAUDE.md` de lá conduz o passo a passo.
+O Claude conduz o resto passo a passo e vai pedir algumas informações: seu WhatsApp, o link da sua agenda, o horário de atendimento, entre outras.
 
-## [`equipe-marketing/`](./equipe-marketing)
+## Documentação
 
-Pipeline de automação de conteúdo (research → ad creative → video → copy → distribution),
-empacotado como plugin de skills do Claude Code. Substitui uma pasta que continha só
-documentação/especificação (sem código funcionando) por uma implementação local real —
-testada nesta máquina, sem depender de infraestrutura paga pra rodar.
-
----
-
-Cada pasta tem seu próprio `README.md` com instalação, uso e a lista do que falta pra
-produção — comece por lá.
+- `CLAUDE.md`: roteiro de instalação e uso (o Claude Code lê sozinho)
+- `docs/arquitetura.md`: como o bot funciona e todos os campos de configuração
+- `docs/funil-e-qualificacao.md`: como pensar o funil e a qualificação
+- `docs/wa-akg.md`: conexão com o WhatsApp
