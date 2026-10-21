@@ -21,8 +21,10 @@ Se `validar` não mostrar pendências, siga direto com o pedido do Luís.
    node -e "const fs=require('fs'),c=require('crypto');let e=fs.readFileSync('.env.example','utf8');e=e.replace(/^WEBHOOK_SECRET=.*$/m,'WEBHOOK_SECRET='+c.randomBytes(24).toString('hex')).replace(/^PAINEL_SENHA=.*$/m,'PAINEL_SENHA='+c.randomBytes(9).toString('base64url'));fs.writeFileSync('.env',e);console.log('Senha do painel:',e.match(/^PAINEL_SENHA=(.*)$/m)[1])"
    ```
    Diga ao Luís a senha do painel e peça que guarde num lugar seguro.
-4. `node cli.js validar`
-5. `npm start` e abra http://localhost:3100 para mostrar o painel (vai estar vazio). Pare com Ctrl+C quando terminar.
+4. **Instale a IA (OmniRoute)** seguindo `omniroute/README.md`, passo a passo com o Luís. É ali que entra a pendência 1 abaixo. Atenção: o OmniRoute deve ser iniciado a partir da pasta de usuário (`cd $HOME`), nunca de dentro desta pasta, senão ele lê o `.env` do bot e ocupa a porta 3100.
+5. `node omniroute/testar.mjs`: pelo menos um modelo `gemini/...` com ✓.
+6. `node cli.js validar`
+7. `npm start` e abra http://localhost:3100 para mostrar o painel (vai estar vazio). Pare com Ctrl+C quando terminar.
 
 ## Pendências: peça estas informações ao Luís
 
@@ -30,7 +32,7 @@ Peça uma de cada vez, explicando para que serve. Depois de cada resposta, grave
 
 | # | O que pedir | Para que serve | Onde gravar |
 |---|---|---|---|
-| 1 | **Chave da API da Anthropic** (console.anthropic.com → API Keys; precisa de crédito na conta) | É o "cérebro" que escreve as respostas | `.env` → `ANTHROPIC_API_KEY`. Nunca repita a chave na conversa nem a coloque em outro arquivo |
+| 1 | **Chave gratuita do Google Gemini** (https://aistudio.google.com/apikey → Create API key), para conectar no OmniRoute | É o "cérebro" que escreve as respostas, via OmniRoute | Painel do OmniRoute (http://localhost:20128 → Providers → Google Gemini), conforme `omniroute/README.md`. A chave fica só no OmniRoute: nunca a repita na conversa nem a grave em arquivo do bot |
 | 2 | **WhatsApp do Luís** para receber os leads (com DDI e DDD, ex.: 5511999998888) e, se for outra pessoa, o WhatsApp de quem atende clientes em viagem | Quando o bot passa um lead, esse número recebe o aviso com o resumo | `config/funil.json` → `destinos[].whatsapp` (`luis_comercial` e `atendimento_viagem`; se for a mesma pessoa, repita o número) |
 | 3 | **Link de agenda** da conversa de 30 minutos (Calendly, Google Agenda etc.) | O bot envia o link quando o lead aceita a conversa. Sem link, o bot transfere direto para o Luís | `config/bot.json` → `link_agendamento` |
 | 4 | **Horário real de atendimento** (dias e horas) | Define quando saem os follow-ups e o que o bot diz sobre o retorno do time | `config/bot.json` → `horario` (dias: 0=dom … 6=sáb) |
@@ -68,7 +70,12 @@ Se algo sair errado, ajuste o texto em `conhecimento/` ou `config/` (não o cód
 
 ## Colocar no ar
 
-Siga `docs/wa-akg.md`: instalar o WA-AKG, conectar o número pelo QR code, preencher `WAAKG_URL`, `WAAKG_API_KEY` e `WAAKG_SESSION` no `.env`, rodar `npm start` e `npm run registrar-webhook`, e **desligar o auto-reply e a mensagem de boas-vindas do WA-AKG**. Para manter ligado sem o terminal aberto: `npm i -g pm2` e `pm2 start server.js --name viajaon-sdr`.
+Siga `docs/wa-akg.md`: instalar o WA-AKG, conectar o número pelo QR code, preencher `WAAKG_URL`, `WAAKG_API_KEY` e `WAAKG_SESSION` no `.env`, rodar `npm start` e `npm run registrar-webhook`, e **desligar o auto-reply e a mensagem de boas-vindas do WA-AKG**. Para manter o bot e o OmniRoute ligados sem terminal aberto, use o pm2 (passo 7 de `omniroute/README.md`).
+
+## Sobre a IA
+
+O bot usa o **OmniRoute** (`config/bot.json` → `"provedor_ia": "omniroute"`), que roda nesta máquina e usa a conta gratuita do Gemini do Luís. `modelo` é uma lista em ordem de preferência; o bot tenta cada um até um responder e, se nenhum responder, passa o lead para o Luís com a mensagem de contingência (evento `erro_ia` na ficha).
+O Gemini gratuito toma as decisões certas, mas às vezes escapa do tom da marca com um elogio leve. Se o Luís quiser o padrão mais alto, troque para o Claude (`"provedor_ia": "anthropic"`, `"modelo": "claude-opus-5-5"` e `ANTHROPIC_API_KEY` no `.env`), que é pago por uso. Detalhes em `omniroute/README.md`.
 
 ## Uso do dia a dia
 
@@ -88,4 +95,4 @@ Siga `docs/wa-akg.md`: instalar o WA-AKG, conectar o número pelo QR code, preen
 - O banco `data/sdr.db` tem nome, telefone e conversas de clientes (LGPD): não compartilhe, e apague o lead no painel se alguém pedir.
 - Mudança de comportamento vai na configuração. Código (`lib/`) só muda com o Cesar.
 
-Documentação completa: `docs/arquitetura.md` (todos os campos de configuração), `docs/funil-e-qualificacao.md` (como pensar o funil) e `docs/wa-akg.md` (WhatsApp).
+Documentação completa: `omniroute/README.md` (a IA), `docs/arquitetura.md` (todos os campos de configuração), `docs/funil-e-qualificacao.md` (como pensar o funil) e `docs/wa-akg.md` (WhatsApp).

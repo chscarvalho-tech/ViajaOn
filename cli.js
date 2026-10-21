@@ -12,7 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { criarApp } from './lib/app.js';
 import { validarBot, validarFunil } from './lib/config.js';
-import { montarSistema } from './lib/cerebro.js';
+import { montarSistema, statusIA } from './lib/cerebro.js';
 
 const raiz = path.dirname(fileURLToPath(import.meta.url));
 try { process.loadEnvFile(path.join(raiz, '.env')); } catch { /* usa o ambiente */ }
@@ -105,7 +105,8 @@ switch (cmd) {
     const bot = config.bot();
     const funil = config.funil();
     const pend = [];
-    if (!process.env.ANTHROPIC_API_KEY) pend.push('.env → ANTHROPIC_API_KEY vazio (o bot não responde sem ela)');
+    const ia = await statusIA(bot);
+    if (!ia.ok) pend.push(`IA (${ia.provedor}) indisponível: ${ia.detalhe} (o bot não responde sem ela)`);
     for (const d of funil.destinos ?? []) if (!d.whatsapp) pend.push(`funil.json → destinos "${d.id}" sem WhatsApp (o aviso de lead transferido não é enviado)`);
     if (!bot.link_agendamento) pend.push('bot.json → link_agendamento vazio (quem aceita a conversa é transferido direto)');
     for (const m of funil.materiais ?? []) if (!m.url) pend.push(`funil.json → material "${m.id}" sem URL (o bot não oferece)`);

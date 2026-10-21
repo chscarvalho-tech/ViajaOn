@@ -4,6 +4,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { criarApp } from './lib/app.js';
+import { statusIA } from './lib/cerebro.js';
 
 const raiz = path.dirname(fileURLToPath(import.meta.url));
 try { process.loadEnvFile(path.join(raiz, '.env')); } catch { /* sem .env: usa o ambiente */ }
@@ -18,10 +19,9 @@ if (!SENHA) {
   process.exit(1);
 }
 if (!SEGREDO_WEBHOOK) console.warn('[aviso] WEBHOOK_SECRET vazio: o webhook aceitará chamadas sem assinatura.');
-if (!process.env.ANTHROPIC_API_KEY) console.warn('[aviso] ANTHROPIC_API_KEY vazio: o bot não conseguirá responder.');
-
 const app = criarApp({ raiz, publicUrl: PUBLIC_URL });
 const { repo, config, motor, wa } = app;
+statusIA(config.bot()).then((s) => { if (!s.ok) console.warn(`[aviso] IA indisponível (${s.provedor}): ${s.detalhe}. O bot não conseguirá responder.`); });
 
 const TOKEN = crypto.createHmac('sha256', SENHA).update('painel-sdr-v1').digest('hex');
 const HTML_PAINEL = path.join(raiz, 'painel', 'index.html');
@@ -113,13 +113,16 @@ rota('GET', '/api/status', async (req, res) => {
     } catch (e) { whatsapp = { configurado: true, conectado: false, erro: e.message }; }
   }
   const conhecimento = config.conhecimento();
+  const ia = await statusIA(bot);
   json(res, 200, {
     bot_ativo: Boolean(bot.ativo),
     nome_bot: bot.nome_bot,
     empresa: bot.empresa,
     modelo: bot.modelo,
     esforco: bot.esforco,
-    ia_configurada: Boolean(process.env.ANTHROPIC_API_KEY),
+    ia_provedor: ia.provedor,
+    ia_configurada: ia.ok,
+    ia_detalhe: ia.detalhe,
     webhook_url: `${PUBLIC_URL}/webhook`,
     webhook_assinado: Boolean(SEGREDO_WEBHOOK),
     whatsapp,

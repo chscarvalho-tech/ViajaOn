@@ -749,7 +749,7 @@ async function vConfig() {
         <h2>Integração</h2>
         <div class="grid" style="gap:8px">
           <div>WhatsApp (WA-AKG): ${!w.configurado ? '<span class="badge erro">não configurado</span>' : w.conectado ? `<span class="badge ok">conectado · ${esc(w.sessao)}</span>` : `<span class="badge erro">${esc(w.status || w.erro || 'desconectado')}</span>`}</div>
-          <div>Claude: ${s.ia_configurada ? `<span class="badge ok">${esc(s.modelo)} · esforço ${esc(s.esforco)}</span>` : '<span class="badge erro">ANTHROPIC_API_KEY ausente</span>'}</div>
+          <div>IA (${s.ia_provedor === 'omniroute' ? 'OmniRoute' : 'Claude'}): <span class="badge ${s.ia_configurada ? 'ok' : 'erro'}">${esc(s.ia_detalhe)}</span></div>
           <div>Webhook: <span class="mono">${esc(s.webhook_url)}</span> ${s.webhook_assinado ? '<span class="badge ok">assinado</span>' : '<span class="badge erro">sem segredo</span>'}</div>
           <div class="faint">Para registrar o webhook no WA-AKG: <span class="mono">npm run registrar-webhook</span>. Desative o auto-reply e a mensagem de boas-vindas do WA-AKG nessa sessão para não haver respostas duplicadas.</div>
         </div>

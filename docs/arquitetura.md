@@ -36,8 +36,9 @@ Ações possíveis da IA: `continuar`, `transferir` (etapa encaminhado, modo hum
 |---|---|
 | `nome_bot`, `empresa` | Como o bot se apresenta |
 | `persona`, `tom`, `idioma` | Estilo de escrita |
-| `modelo` | Modelo do Claude (padrão `claude-opus-5-5`; alternativas mais baratas: `claude-sonnet-5-5`, `claude-haiku-5-5`) |
-| `esforco` | `low` (padrão, rápido para chat), `medium` ou `high`. Mais esforço deixa a resposta mais lenta e cara |
+| `provedor_ia` | `anthropic` (Claude direto, padrão; usa `ANTHROPIC_API_KEY`) ou `omniroute` (gateway OmniRoute compatível com OpenAI; usa `OMNIROUTE_URL` e, se exigida, `OMNIROUTE_API_KEY`) |
+| `modelo` | Com `anthropic`: id do Claude (padrão `claude-opus-5-5`; mais baratos: `claude-sonnet-5-5`, `claude-haiku-5-5`). Com `omniroute`: id ou **lista em ordem de preferência** (ex.: `["gemini/gemini-3-flash-preview", "auto/best-free"]`); o bot tenta cada um até um responder |
+| `esforco` | Só com `anthropic`: `low` (padrão, rápido para chat), `medium` ou `high`. Mais esforço deixa a resposta mais lenta e cara |
 | `fallback_recusa` | Se o classificador de segurança recusar, o servidor da Anthropic refaz em outro modelo (só nos modelos que suportam) |
 | `ativo` | Liga ou desliga o bot para todos (também pelo botão do painel) |
 | `aguardar_segundos` | Tempo de espera para agrupar mensagens seguidas (padrão 8) |
